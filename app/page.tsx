@@ -28,7 +28,7 @@ export default function Home() {
   }, []);
 
   const checkAdminRole = async (currentUser: any) => {
-    if (currentUser.email === "atul114p@gmail.com") {
+    if (currentUser.email === "theaevogaming@gmail.com" ||currentUser.email === "searchifyofficial@gmail.com" ) {
       setIsAdmin(true);
       return;
     }

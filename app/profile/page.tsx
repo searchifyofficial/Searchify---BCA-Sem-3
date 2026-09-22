@@ -53,7 +53,7 @@ export default function ProfilePage() {
       if (profile.name) setName(profile.name);
       if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
     } else {
-      setName(currentUser.email.split('@')[0].toUpperCase());
+      setName(currentUser.email?.split('@')[0].toUpperCase() || "USER");
     }
 
     const { data, error } = await supabase
