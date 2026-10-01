@@ -11,6 +11,7 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showWelcomeBox, setShowWelcomeBox] = useState(true); // Welcome box state
   const router = useRouter();
 
   const suggestions = ["Computer Networking", "Mathematics - III", "OOPJ", "DTI", "Version Controlling", "Operating System"];
@@ -28,7 +29,7 @@ export default function Home() {
   }, []);
 
   const checkAdminRole = async (currentUser: any) => {
-    if (currentUser.email === "theaevogaming@gmail.com" ||currentUser.email === "searchifyofficial@gmail.com" ) {
+    if (currentUser.email === "theaevogaming@gmail.com" || currentUser.email === "searchifyofficial@gmail.com") {
       setIsAdmin(true);
       return;
     }
@@ -176,8 +177,8 @@ export default function Home() {
       {!isSearching && (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12 transition-all duration-500">
           <div className="w-20 h-20 mb-6 rounded-3xl shadow-2xl shadow-blue-500/20 border border-white/10 overflow-hidden bg-slate-900">
-  <img src="/icon.png" alt="Searchify Logo" className="w-full h-full object-cover" />
-</div>
+            <img src="/icon.png" alt="Searchify Logo" className="w-full h-full object-cover" />
+          </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-slate-100 to-red-500 bg-clip-text text-transparent mb-3">
             Searchify
@@ -188,10 +189,36 @@ export default function Home() {
 
           <button 
             onClick={() => setIsSearching(true)}
-            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-red-600 text-white font-bold text-sm shadow-xl shadow-red-500/10 hover:scale-105 transition-all duration-300"
+            className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-red-600 text-white font-bold text-sm shadow-xl shadow-red-500/10 hover:scale-105 transition-all duration-300 mb-8"
           >
-            Search Now 
+            Search Now 🚀
           </button>
+
+          {/* Removable Welcoming / Introduction Box */}
+          {showWelcomeBox && (
+            <div className="max-w-xl w-full bg-slate-900/80 border border-slate-800 p-5 rounded-3xl backdrop-blur-md shadow-2xl text-left relative animate-fadeIn">
+              <button 
+                onClick={() => setShowWelcomeBox(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                title="Dismiss"
+              >
+                ✕
+              </button>
+              <h3 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">👋 Welcome to Searchify Hub</h3>
+              <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                Yeh platform specifically BCA Semester 3 students ke liye banaya gaya hai jahan aapko sabhi subjects ke notes, PYQs, aur assignments ek hi jagah milte hain.
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400">
+                <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+                  📚 <span className="font-semibold text-slate-200">Instant Notes</span>
+                </div>
+                <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
+                  💬 <span className="font-semibold text-slate-200">Live Community Chat</span>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
 

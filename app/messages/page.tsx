@@ -10,9 +10,10 @@ export default function MessagesPage() {
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [text, setText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [activeMsgMenu, setActiveMsgMenu] = useState<string | null>(null); // For mobile tap menu
+  const [activeMsgMenu, setActiveMsgMenu] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -20,7 +21,7 @@ export default function MessagesPage() {
     checkUserAndFetch();
     fetchUsersList();
 
-    // Supabase Realtime Subscription for instant message sync
+    // Supabase Realtime Subscription
     const channel = supabase
       .channel("public:messages")
       .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
@@ -28,8 +29,14 @@ export default function MessagesPage() {
       })
       .subscribe();
 
+    // Fallback Polling interval
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 3000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, []);
 
@@ -100,6 +107,14 @@ export default function MessagesPage() {
     setShowUserDropdown(false);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!text.trim() && !imageFile) || !user) return;
@@ -126,7 +141,10 @@ export default function MessagesPage() {
       if (text.startsWith("@")) {
         const parts = text.split(" ");
         const mentionedName = parts[0].substring(1).toLowerCase();
-        const found = allUsers.find(u => u.email.toLowerCase().includes(mentionedName) || (u.name && u.name.toLowerCase().includes(mentionedName)));
+        const found = allUsers.find(
+          u => u.email.toLowerCase().includes(mentionedName) || 
+               (u.name && u.name.toLowerCase().includes(mentionedName))
+        );
         if (found) receiverEmail = found.email;
       }
 
@@ -147,6 +165,7 @@ export default function MessagesPage() {
 
       setText("");
       setImageFile(null);
+      setImagePreview(null);
       setShowUserDropdown(false);
       fetchMessages();
     } catch (err: any) {
@@ -241,7 +260,7 @@ export default function MessagesPage() {
                   <span className="text-[11px] font-semibold text-slate-400">{msg.sender_name}</span>
                   <span className="text-[9px] text-slate-600">{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   {msg.receiver_email && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Private</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Private Mention</span>
                   )}
                 </div>
 
@@ -250,23 +269,25 @@ export default function MessagesPage() {
                   className={`p-3.5 rounded-2xl max-w-md shadow-md text-xs relative group cursor-pointer ${isMe ? "bg-blue-600 text-white rounded-tr-none" : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none"}`}
                 >
                   {msg.content && <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>}
+                  
                   {msg.image_url && (
-                    <img src={msg.image_url} alt="Attachment" className="mt-2 rounded-xl max-h-48 object-cover border border-white/10" />
+                    <div className="mt-2.5">
+                      <img src={msg.image_url} alt="Attachment" className="rounded-xl max-h-56 w-full object-cover border border-white/10 shadow-lg" />
+                    </div>
                   )}
 
-                  {/* Actions Menu (Visible on Hover for Desktop OR Tap for Mobile) */}
-                  <div className={`absolute top-2 right-2 ${isMenuOpen ? "flex" : "hidden"} group-hover:flex items-center gap-1 bg-black/80 backdrop-blur-md p-1.5 rounded-lg z-20 shadow-xl border border-white/10`}>
+                  {/* Actions Menu (Visible on Hover or Mobile Tap) */}
+                  <div className={`absolute top-2 right-2 ${isMenuOpen ? "flex" : "hidden"} group-hover:flex items-center gap-1 bg-slate-950/90 backdrop-blur-md p-1.5 rounded-xl z-20 shadow-2xl border border-slate-700`}>
                     <button 
                       onClick={(e) => { e.stopPropagation(); handlePrivateReply(msg.sender_email); setActiveMsgMenu(null); }}
-                      className="text-[10px] px-2 py-1 bg-purple-600 rounded text-white font-medium"
-                      title="Reply Privately"
+                      className="text-[10px] px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded-lg text-white font-medium transition-all"
                     >
                       Reply Privately
                     </button>
                     {isAdmin && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleTogglePin(msg.id, msg.is_pinned); setActiveMsgMenu(null); }}
-                        className="text-[10px] px-1.5 py-1 bg-slate-800 rounded text-amber-400 font-medium"
+                        className="text-[10px] px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-amber-400 font-medium transition-all"
                       >
                         {msg.is_pinned ? "Unpin" : "Pin"}
                       </button>
@@ -274,7 +295,7 @@ export default function MessagesPage() {
                     {(isAdmin || isMe) && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id, msg.sender_email); setActiveMsgMenu(null); }}
-                        className="text-[10px] px-1.5 py-1 bg-red-600 rounded text-white font-medium"
+                        className="text-[10px] px-2 py-1 bg-red-600 hover:bg-red-500 rounded-lg text-white font-medium transition-all"
                       >
                         Delete
                       </button>
@@ -288,8 +309,10 @@ export default function MessagesPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input & User Mention Dropdown */}
+      {/* Input Form & Image Preview */}
       <div className="p-4 bg-slate-900 border-t border-slate-800 relative">
+        
+        {/* Mention Dropdown */}
         {showUserDropdown && allUsers.length > 0 && (
           <div className="absolute bottom-20 left-4 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 max-h-40 overflow-y-auto w-64 z-30">
             <p className="text-[10px] text-slate-400 px-2 py-1 uppercase font-bold">Select user to mention:</p>
@@ -306,6 +329,23 @@ export default function MessagesPage() {
           </div>
         )}
 
+        {/* Selected Image Preview Box */}
+        {imagePreview && (
+          <div className="max-w-4xl mx-auto mb-3 flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-3">
+              <img src={imagePreview} alt="Preview" className="w-12 h-12 rounded-lg object-cover border border-slate-700" />
+              <span className="text-xs text-slate-300 truncate max-w-xs">{imageFile?.name}</span>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => { setImageFile(null); setImagePreview(null); }} 
+              className="text-xs text-red-400 hover:text-red-300 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/20"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex items-center gap-3">
           <input 
             type="text"
@@ -315,12 +355,12 @@ export default function MessagesPage() {
             className="flex-1 px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-blue-500 shadow-inner"
           />
 
-          <label className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer text-xs border border-slate-700 shrink-0" title="Attach Photo">
+          <label className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer text-xs border border-slate-700 shrink-0 transition-all hover:scale-105" title="Attach Photo">
             📷
-            <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="hidden" />
+            <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
           </label>
 
-          <button type="submit" disabled={uploading} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-red-600 text-white font-semibold text-xs shadow-lg shrink-0 transition-all">
+          <button type="submit" disabled={uploading} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-red-600 text-white font-semibold text-xs shadow-lg shrink-0 transition-all hover:scale-105">
             {uploading ? "Sending..." : "Send 🚀"}
           </button>
         </form>
