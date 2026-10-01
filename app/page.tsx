@@ -193,38 +193,6 @@ export default function Home() {
           >
             Search Now 🚀
           </button>
-
-          {/* Professional Overview Welcoming Box */}
-          {showWelcomeBox && (
-            <div className="max-w-xl w-full bg-slate-900/90 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl shadow-2xl text-left relative animate-fadeIn">
-              <button 
-                onClick={() => setShowWelcomeBox(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
-                title="Dismiss"
-              >
-                ✕
-              </button>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
-                  System Notice v1.0.4
-                </span>
-              </div>
-              <h3 className="text-sm font-extrabold text-slate-100 mb-2">
-                Searchify Academic Intelligence Hub
-              </h3>
-              <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                Centralized knowledge repository engineered for BCA Semester 3 curriculum. Access verified faculty notes, structured practical drives, and secure student-to-peer collaboration channels under a unified platform interface.
-              </p>
-              <div className="grid grid-cols-2 gap-3 text-[11px] text-slate-300 font-medium">
-                <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center gap-2">
-                  <span className="text-blue-400 font-bold">📂</span> Verified Repository
-                </div>
-                <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center gap-2">
-                  <span className="text-red-400 font-bold">🔒</span> Encrypted Sync
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
