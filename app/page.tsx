@@ -228,102 +228,43 @@ export default function Home() {
         </div>
       )}
 
-      {/* Active Search & Repository Dashboard View */}
-      {isSearching && (
-        <div className="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 transition-all duration-500">
-          
-          <div className="mb-6">
-            <h1 className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-red-500 bg-clip-text text-transparent">
-              Searchify
-            </h1>
-            <p className="text-slate-400 text-xs mt-1">Instant search across all BCA Semester 3 materials</p>
-          </div>
-
-          {/* Search Bar & Hamburger Button */}
-          <div className="mb-4 flex items-center gap-3">
-            <div className="relative flex-1">
-              <input 
-                type="text"
-                autoFocus
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Type keywords (e.g. data structures unit 1)..."
-                className="w-full px-5 py-4 pl-12 pr-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-blue-500 shadow-2xl transition-all"
-              />
-              <span className="absolute left-4 top-4 text-slate-500">🔍</span>
+      {/* Removable Welcoming / Introduction Box */}
+          {showWelcomeBox && (
+            <div className="max-w-xl w-full bg-slate-900/95 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl shadow-2xl text-left relative animate-fadeIn">
               <button 
-                onClick={() => { setIsSearching(false); setSearchQuery(""); }}
-                className="absolute right-3 top-3 text-[11px] text-slate-400 hover:text-white px-2.5 py-1.5 rounded-xl bg-slate-800"
+                onClick={() => setShowWelcomeBox(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                title="Dismiss"
               >
-                Close
+                ✕
               </button>
-            </div>
-
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition-all shadow-xl flex items-center justify-center shrink-0 active:scale-95"
-              aria-label="Toggle Menu"
-            >
-              <div className="w-5 h-5 flex flex-col justify-between items-center">
-                <span className="w-full h-0.5 bg-slate-300 rounded-full" />
-                <span className="w-full h-0.5 bg-slate-300 rounded-full" />
-                <span className="w-full h-0.5 bg-slate-300 rounded-full" />
+              
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
+                  Welcome to Searchify 🚀
+                </span>
               </div>
-            </button>
-          </div>
-
-          {/* Quick Suggestions Tags */}
-          <div className="mb-8 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] text-slate-500 font-medium">Suggestions:</span>
-            {suggestions.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => setSearchQuery(item)}
-                className="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-xs text-slate-300 border border-slate-800 transition-all"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          <h2 className="text-lg font-semibold mb-4 text-slate-300">
-            {searchQuery ? `Search Results (${filteredMaterials.length})` : "All Approved Materials"}
-          </h2>
-
-          {loading ? (
-            <p className="text-slate-500 text-center py-10">Loading study materials...</p>
-          ) : filteredMaterials.length === 0 ? (
-            <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800/80">
-              <p className="text-slate-400 text-sm">No matching study materials found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredMaterials.map((item) => (
-                <div key={item.id} className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between hover:border-slate-700 transition-all">
-                  <div>
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                      {item.subject}
-                    </span>
-                    <h3 className="text-base font-bold mt-2.5 text-slate-100">{item.title}</h3>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Semester: {item.semester}</p>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center">
-                    <span className="text-[10px] text-slate-500">By: {item.uploaded_by || "Student"}</span>
-                    <a 
-                      href={item.file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-blue-400 border border-slate-700 transition-all"
-                    >
-                      Download PDF →
-                    </a>
-                  </div>
+              
+              <h3 className="text-sm font-extrabold text-slate-100 mb-2">
+                Your Ultimate BCA Semester 3 Study Partner
+              </h3>
+              
+              <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                No more wasting time searching through scattered groups or folders for notes. Get verified study materials, PYQs, and direct PDF downloads all in one place!
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3 text-[11px] text-slate-300 font-medium">
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <span className="text-blue-400 font-bold block mb-1">⚡ Instant Search</span>
+                  Type keywords and instantly find notes for your specific subjects.
                 </div>
-              ))}
+                <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                  <span className="text-red-400 font-bold block mb-1">💬 Live Community Chat</span>
+                  Connect with peers, send private messages, and share photos on the go.
+                </div>
+              </div>
             </div>
           )}
-        </div>
-      )}
 
     </div>
   );

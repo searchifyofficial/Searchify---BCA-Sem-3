@@ -29,7 +29,7 @@ export default function MessagesPage() {
       })
       .subscribe();
 
-    // Fallback Polling interval
+    // Fallback Polling interval to ensure real-time smoothness
     const interval = setInterval(() => {
       fetchMessages();
     }, 3000);
@@ -51,7 +51,7 @@ export default function MessagesPage() {
     const currentUser = session.user;
     setUser(currentUser);
 
-    if (currentUser.email === "atul114p@gmail.com") {
+    if (currentUser.email === "theaevogaming@gmail.com" || currentUser.email === "searchifyofficial@gmail.com") {
       setIsAdmin(true);
     } else {
       const { data: profile } = await supabase
@@ -205,11 +205,17 @@ export default function MessagesPage() {
     setShowUserDropdown(false);
   };
 
+  // Robust visibility filter for private & public messages
   const visibleMessages = messages.filter((msg) => {
     if (isAdmin) return true;
     if (!msg.receiver_email) return true;
-    if (msg.sender_email === user?.email) return true;
-    if (msg.receiver_email === user?.email) return true;
+    
+    const currentEmail = user?.email?.toLowerCase().trim();
+    const msgSender = msg.sender_email?.toLowerCase().trim();
+    const msgReceiver = msg.receiver_email?.toLowerCase().trim();
+
+    if (msgSender === currentEmail || msgReceiver === currentEmail) return true;
+
     return false;
   });
 
