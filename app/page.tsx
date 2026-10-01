@@ -225,6 +225,8 @@ export default function Home() {
               </div>
             </div>
           )}
+        </div>
+      )}
 
       {/* Active Search & Repository Dashboard View */}
       {isSearching && (
