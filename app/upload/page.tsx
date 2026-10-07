@@ -122,6 +122,7 @@ export default function UploadPage() {
               <option value="PYQs">PYQs (Previous Year Questions)</option>
               <option value="Assignments">Assignments</option>
               <option value="Question Banks">Question Banks</option>
+              <option value="Syllabus">Syllabus 📚</option>
             </select>
           </div>
 
