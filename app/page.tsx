@@ -11,7 +11,7 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showWelcomeBox, setShowWelcomeBox] = useState(true); // Welcome box state
+  const [showWelcomeBox, setShowWelcomeBox] = useState(true);
   const router = useRouter();
 
   const suggestions = ["Computer Networking", "Mathematics - III", "OOPJ", "DTI", "Version Controlling", "Operating System"];
@@ -68,6 +68,26 @@ export default function Home() {
     setIsAdmin(false);
     setIsSidebarOpen(false);
     router.refresh();
+  };
+
+  // Direct blob download function for Supabase storage files
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = fileName || "document.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      window.open(fileUrl, "_blank");
+    }
   };
 
   const filteredMaterials = materials.filter((item) => {
@@ -194,7 +214,6 @@ export default function Home() {
             Search Now 🚀
           </button>
 
-          {/* Removable Welcoming / Introduction Box (Properly Inside Hero Section) */}
           {showWelcomeBox && (
             <div className="max-w-xl w-full bg-slate-900/95 border border-slate-800 p-6 rounded-3xl backdrop-blur-xl shadow-2xl text-left relative animate-fadeIn">
               <button 
@@ -245,7 +264,6 @@ export default function Home() {
             <p className="text-slate-400 text-xs mt-1">Instant search across all BCA Semester 3 materials</p>
           </div>
 
-          {/* Search Bar & Hamburger Button */}
           <div className="mb-4 flex items-center gap-3">
             <div className="relative flex-1">
               <input 
@@ -278,7 +296,6 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Quick Suggestions Tags */}
           <div className="mb-8 flex flex-wrap items-center gap-2">
             <span className="text-[11px] text-slate-500 font-medium">Suggestions:</span>
             {suggestions.map((item, idx) => (
@@ -313,17 +330,31 @@ export default function Home() {
                     <h3 className="text-base font-bold mt-2.5 text-slate-100">{item.title}</h3>
                     <p className="text-[11px] text-slate-400 mt-0.5">Semester: {item.semester}</p>
                   </div>
+                  
                   <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center">
                     <span className="text-[10px] text-slate-500">By: {item.uploaded_by || "Student"}</span>
-                    <a 
-                      href={item.file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-blue-400 border border-slate-700 transition-all"
-                    >
-                      Download PDF →
-                    </a>
+                    
+                    <div className="flex items-center gap-2">
+                      {/* View Button */}
+                      <a 
+                        href={item.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition-all"
+                      >
+                        View 👁️
+                      </a>
+
+                      {/* Direct Blob Download Button */}
+                      <button 
+                        onClick={() => handleDownload(item.file_url, `${item.title}.pdf`)}
+                        className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-red-600 hover:opacity-90 text-xs font-semibold text-white shadow-md transition-all"
+                      >
+                        Download 📥
+                      </button>
+                    </div>
                   </div>
+
                 </div>
               ))}
             </div>
